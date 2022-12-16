@@ -120,6 +120,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
             i_callBackGasLimit,
             NUM_WORDS
         );
+        // This is redundant as the call to vrfCoordinatorV2 emits an event with the requestId
         emit RequestedRaffleWinner(requestId);
     }
 
@@ -175,5 +176,9 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     function getRequestConfirmations() public pure returns (uint256){
         return REQUEST_CONFIRMATIONS;
+    }
+
+    function getInterval() public view returns (uint256){
+        return i_interval;
     }
 }

@@ -1,6 +1,6 @@
 const { network, ethers } = require("hardhat")
-const { developmentChains, networkConfig } = require("../helper-hadhat-config")
-const verify = require("../utils/verify")
+const { developmentChains, networkConfig } = require("../helper-hardhat-config")
+const { verify } = require("../utils/verify")
 
 const VRF_SUB_FUND_AMOUNT = ethers.utils.parseEther("2")
 
@@ -8,10 +8,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
-    let vrfCoordinatorV2Address, subscriptionId
+    let vrfCoordinatorV2Address, subscriptionId, vrfCoordinatorV2Mock
 
     if (developmentChains.includes(network.name)) {
-        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
         const transactionResponse = await vrfCoordinatorV2Mock.createSubscription()
         const transactionRecipt = await transactionResponse.wait(1)
@@ -43,6 +43,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         args: args,
         waitConfirmations: network.config.blockConfirmations || 1,
     })
+
+    // according to https://ethereum.stackexchange.com/questions/131426/chainlink-keepers-getting-invalidconsumer (first answer)
+    if (chainId == 31337) {
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId.toNumber(), raffle.address)
+    }
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")

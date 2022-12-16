@@ -1,4 +1,4 @@
-const { developmentChains } = require("../helper-hadhat-config")
+const { developmentChains } = require("../helper-hardhat-config")
 
 /**
  * @dev https://docs.chain.link/vrf/v2/subscription/supported-networks
